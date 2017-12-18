@@ -22,10 +22,16 @@ public:
 
 protected:
 	int32 Height(int32, int32);
+	float Gauss(int32 x, float sigma, float average = 0);
+	FVector SetNormal(int x, int y, int z);
+	FVector GetFaceNormal(FVector center, FVector i, FVector j);
 
 	ASimplexNoise Noise;
 
-	const int32 HeightOfRocks = 500;
-	int32 HeightFactor = 1300;
+	UPROPERTY(EditAnywhere)
+	int32 HeightOfRocks = 1000;
+	UPROPERTY(EditAnywhere)
+	int32 HeightFactor = 2000;
+	UPROPERTY(EditAnywhere)
 	int Octaves = 6;
 };

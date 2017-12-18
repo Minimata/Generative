@@ -7,14 +7,12 @@
 
 // Sets default values
 ATerraGen::ATerraGen() :
-	BoundingBox(FVector(-10000, -10000, -10000), FVector(10000, 10000, 10000))
+	BoundingBox(FVector(-100000, -100000, -10000), FVector(100000, 100000, 10000))
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	RuntimeMesh = CreateDefaultSubobject<URuntimeMeshComponent>(TEXT("Runtime Mesh"));
 	RootComponent = RuntimeMesh;
-
-	//Lib = CreateDefaultSubobject<URuntimeMeshLibrary>(TEXT("Runtime Mesh Lib"));
 }
 
 // Called when the game starts or when spawned
@@ -76,8 +74,6 @@ void ATerraGen::Generate() {
 	}
 	// Create the triangle array
 	URuntimeMeshLibrary::CreateGridMeshTriangles(HalfWidth * 2, HalfWidth * 2, true, Triangles);
-
-	//Lib->CalculateTangentsForMesh(VerticesRef, Triangles, TextureCoordinates, Normals, Tangents);
 
 	for (int i = 0; i < NumberOfTerrains; ++i) {
 		RuntimeMesh->CreateMeshSection(i, Vertices[i], Triangles, BoundingBox, true);
