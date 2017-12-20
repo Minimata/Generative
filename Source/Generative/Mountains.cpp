@@ -20,70 +20,114 @@ void AMountains::SetMaterials() {
 	}
 }
 
-int AMountains::SetVertex(int index, int32 x, int32 y, int32 XIndex, int32 YIndex) {
-	float Scale = CellSize / 50.0f;
+void AMountains::PopulateVertices() {
+	RandFactor = FMath::Rand();
 
-	int32 z = Height(x, y);
-	FVector position(x, y, z);
+	for (int32 YIndex = 0; YIndex < HalfWidth * 2; YIndex++) {
+		for (int32 XIndex = 0; XIndex < HalfWidth * 2; XIndex++) {
+			int32 x = XIndex * CellSize;
+			int32 y = YIndex * CellSize;
+			VerticesPos[XIndex][YIndex] = Height(x, y);
+		}
+	}
 
-	FVector normal = SetNormal(x, y, z);
+	/*
+	for (int32 YIndex = 0; YIndex < HalfWidth * 2 - DiamondSquareStep; YIndex += DiamondSquareStep)
+	{
+		for (int32 XIndex = 0; XIndex < HalfWidth * 2 - DiamondSquareStep; XIndex += DiamondSquareStep)
+		{
+			/*
+			int32 endX = XIndex + DiamondSquareStep;
+			int32 endY = YIndex + DiamondSquareStep;
+			int32 x = XIndex * CellSize;
+			int32 y = YIndex * CellSize;
+			VerticesPos[XIndex][YIndex] = Height(x, y);
+			x = (endX) * CellSize;
+			y = YIndex * CellSize;
+			VerticesPos[endX][YIndex] = Height(x, y);
+			x = XIndex * CellSize;
+			y = (endY) * CellSize;
+			VerticesPos[XIndex][endY] = Height(x, y);
+			x = (endX) * CellSize;
+			y = (endY) * CellSize;
+			VerticesPos[endX][endY] = Height(x, y);
 
+			int step = DiamondSquareStep;
+			while (step > 1) {
+				int32 halfStep = step / 2;
+				for (int i = XIndex + halfStep; i < endX; i += step) {
+					for (int j = YIndex + halfStep; j < endY; j += step) {
+						int32 average = VerticesPos[i - halfStep][j - halfStep] +
+							VerticesPos[i - halfStep][j + halfStep] +
+							VerticesPos[i + halfStep][j - halfStep] +
+							VerticesPos[i + halfStep][j + halfStep];
+						average /= 4;
+						VerticesPos[i][j] = average + FMath::FRandRange(-halfStep, halfStep);
+					}
+				}
+				for (int i = XIndex; i < endX; i += halfStep) {
+					int offset = 0;
+					if(i % step == 0) offset = halfStep;
+					for (int j = YIndex + offset; j < endY; j += step) {
+						int sum = 0;
+						int n = 0;
+						if (i >= halfStep + XIndex) {
+							sum += VerticesPos[i - halfStep ][j];
+							n++;
+						}
+						if (i + halfStep < endX) {
+							sum += VerticesPos[i + halfStep ][j];
+							n++;
+						}
+
+						if (j >= halfStep + YIndex) {
+							sum += VerticesPos[i ][j - halfStep];
+							n++;
+						}
+						if (j + halfStep < endY) {
+							sum += VerticesPos[i ][j + halfStep];
+							n++;
+						}
+						VerticesPos[i][j] = sum / n + FMath::FRandRange(-halfStep, halfStep);
+					}
+				}
+				step = halfStep;
+			}
+
+
+		}
+
+	} */
+	
+
+}
+
+void AMountains::CreateVertex(int index, int32 x, int32 y, int32 z, int XIndex, int YIndex) {
+	FVector normal = SetNormal(x, y, XIndex, YIndex);
 	FRuntimeMeshTangent tangent = FVector::CrossProduct(normal, FVector(0, 0, 1));
+
 	FColor color(0, 0, 0);
+
+	float Scale = CellSize / 50.0f;
 	FVector2D UV0(XIndex * Scale, YIndex * Scale);
 
 	for (int k = 0; k < NumberOfTerrains; ++k) {
 		Vertices[k][index] = Vertex(FVector(x, y, z - 1), normal, tangent, color, UV0);
 
 		if (z < HeightOfRocks) {
-			Vertices[0][index] = Vertex(position, normal, tangent, color, UV0);
+			Vertices[0][index] = Vertex(FVector(x, y, z), normal, tangent, color, UV0);
 		}
 		else {
 			//UE_LOG(LogTemp, Warning, TEXT("NOT ROCKS"));
-			Vertices[1][index] = Vertex(position, normal, tangent, color, UV0);
+			Vertices[1][index] = Vertex(FVector(x, y, z), normal, tangent, color, UV0);
 		}
 	}
-
-	return z;
 }
 
-FVector AMountains::SetNormal(int x, int y, int z) {
-	FMatrix heights(FVector(Height(x - CellSize, y - CellSize), Height(x, y - CellSize), Height(x + CellSize, y - CellSize)),
-		FVector(Height(x - CellSize, y), z, Height(x + CellSize, y)),
-		FVector(Height(x - CellSize, y + CellSize), Height(x, y + CellSize), Height(x + CellSize, y + CellSize)),
-		FVector(0, 0, 0)
-	);
-
-	TArray<FVector> vertices;
-	for (int i = -1; i <= 1; i++) {
-		for (int j = -1; j <= 1; j++) {
-			int32 posX = x + i * CellSize;
-			int32 posY = y + j * CellSize;
-			vertices.Add(FVector(posX, posY, Height(posX, posY)));
-		}
-	}
-
-	FVector normal(0, 0, 0);
-	FVector center = vertices[4];
-
-	normal += GetFaceNormal(center, vertices[0], vertices[1]);
-	normal += GetFaceNormal(center, vertices[1], vertices[2]);
-	normal += GetFaceNormal(center, vertices[2], vertices[5]);
-	normal += GetFaceNormal(center, vertices[5], vertices[8]);
-	normal += GetFaceNormal(center, vertices[8], vertices[7]);
-	normal += GetFaceNormal(center, vertices[7], vertices[6]);
-	normal += GetFaceNormal(center, vertices[6], vertices[3]);
-	normal += GetFaceNormal(center, vertices[3], vertices[0]);
-
-	normal.Normalize();
-	return normal;
+void AMountains::GenerateGeometry() {
+	GenerateFromPlane();
 }
 
-FVector AMountains::GetFaceNormal(FVector center, FVector i, FVector j) {
-	FVector first = i - center;
-	FVector second = j - center;
-	return FVector::CrossProduct(second, first);
-}
 
 int32 AMountains::Height(int32 x, int32 y) {
 	int32 distanceToCenter = FMath::Sqrt(FMath::Pow(x, 2) + FMath::Pow(y, 2));

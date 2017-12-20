@@ -21,14 +21,24 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	void Generate();
-	void Seed();
-
-	virtual void DisplacePlane();
-	virtual void LoadSceneReferences();
 	virtual void InitArrays();
 	virtual void SetMaterials() {}
-	virtual int SetVertex(int, int32, int32, int32, int32) { return 0; }
+	virtual void LoadSceneReferences();
+
+	virtual void Generate();
+
+	virtual void PopulateVertices() {}
+	virtual void GenerateGeometry() {}
+	virtual void CreateVertex(int index, int32 x, int32 y, int32 z, int XIndex, int YIndex) {}
+
+	virtual int32 Height(int32 x, int32 y) { return 0; }
+	virtual void GenerateFromPlane();
+
+	virtual void DisplacePlane();
+
+	void Seed();
+	FVector SetNormal(int32 x, int32 y, int XIndex, int YIndex);
+	FVector GetFaceNormal(FVector center, FVector i, FVector j);
 
 	UPROPERTY(EditAnywhere)
 		URuntimeMeshComponent* RuntimeMesh;
@@ -37,23 +47,23 @@ protected:
 
 	ACharacter* Player;
 
-	bool Generated = false;
 	FBox BoundingBox;
 
 	UPROPERTY(EditAnywhere)
-	int32 HalfWidth = 1000;
+	int32 HalfWidth = 1025;
 	UPROPERTY(EditAnywhere)
 	float CellSize = 5;
-	int32 RandFactor = 0;
 	int32 NumberOfTerrains = 1;
+
+	TArray<TArray<int32>> VerticesPos;
 
 	TArray<TArray<FRuntimeMeshVertexDualUV>> Vertices;
 	TArray<int32> Triangles;
 	template<typename T>
-	void InitSingleArray(TArray<TArray<T>>& array, T base) {
+	void InitSingleArray(TArray<TArray<T>>& array, T base, int size1, int size2) {
 		TArray<T> baseArray;
-		baseArray.Init(base, FMath::Pow(HalfWidth * 2., 2.));
-		array.Init(baseArray, NumberOfTerrains);
+		baseArray.Init(base, size1);
+		array.Init(baseArray, size2);
 	}
 
 	URuntimeMeshLibrary* Lib;

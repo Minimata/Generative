@@ -18,13 +18,13 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void SetMaterials() override;
-	virtual int SetVertex(int, int32, int32, int32, int32) override;
+	virtual void PopulateVertices() override;
+	virtual void GenerateGeometry() override;
+	virtual void CreateVertex(int index, int32 x, int32 y, int32 z, int XIndex, int YIndex) override;
 
 protected:
-	int32 Height(int32, int32);
+	int32 Height(int32, int32) override;
 	float Gauss(int32 x, float sigma, float average = 0);
-	FVector SetNormal(int x, int y, int z);
-	FVector GetFaceNormal(FVector center, FVector i, FVector j);
 
 	ASimplexNoise Noise;
 
@@ -34,4 +34,8 @@ protected:
 	int32 HeightFactor = 2000;
 	UPROPERTY(EditAnywhere)
 	int Octaves = 6;
+	UPROPERTY(EditAnywhere)
+	int32 DiamondSquareStep = 256;
+
+	int32 RandFactor = 0;
 };
