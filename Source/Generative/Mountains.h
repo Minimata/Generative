@@ -17,6 +17,7 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void Seed() override;
 	virtual void SetMaterials() override;
 	virtual void PopulateVertices() override;
 	virtual void GenerateGeometry() override;
@@ -29,13 +30,12 @@ protected:
 	ASimplexNoise Noise;
 
 	UPROPERTY(EditAnywhere)
-	int32 HeightOfRocks = 1000;
+	int32 HeightOfRocks = 700;
 	UPROPERTY(EditAnywhere)
-	int32 HeightFactor = 2000;
+	int32 HeightFactor = 1000;
 	UPROPERTY(EditAnywhere)
 	int Octaves = 6;
-	UPROPERTY(EditAnywhere)
-	int32 DiamondSquareStep = 256;
 
-	int32 RandFactor = 0;
+	int32 RandFactorBaseHeight = 0;
+	int32 RandFactorGradientNoise = 0;
 };

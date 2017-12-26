@@ -24,6 +24,7 @@ protected:
 	virtual void InitArrays();
 	virtual void SetMaterials() {}
 	virtual void LoadSceneReferences();
+	virtual void Seed();
 
 	virtual void Generate();
 
@@ -36,7 +37,6 @@ protected:
 
 	virtual void DisplacePlane();
 
-	void Seed();
 	FVector SetNormal(int32 x, int32 y, int XIndex, int YIndex);
 	FVector GetFaceNormal(FVector center, FVector i, FVector j);
 
